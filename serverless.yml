@@ -1,0 +1,47 @@
+service: notes-api
+frameworkVersion: '3'
+
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: Julia
+  region: eu-north-1
+  iam:
+    role: arn:aws:iam::429799042192:role/lectures-cloud
+
+plugins:
+  - serverless-webpack
+
+package: 
+  individually: true
+
+
+functions:
+  getNotes:
+    handler: functions/getNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes'
+          method: GET
+
+  postNotes:
+    handler: functions/postNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes'
+          method: POST
+
+  deleteNotes:
+    handler: functions/deleteNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes'
+          method: DELETE
+
+  changeNotes:
+    handler: functions/changeNotes/index.handler
+    events:
+      - httpApi:
+          path: '/notes'
+          method: PUT
