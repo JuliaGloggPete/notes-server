@@ -1,16 +1,30 @@
 const {sendResponse} = require('../../responses/index')
 const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB.DocumentClient();
+const { nanoid } = require('nanoid');
+
 
 
 exports.handler = async(event,context)=>{
 
     const note = JSON.parse(event.body)
 
-    //ändrar sen till nano db
+    if (!note.title || !note.text){
+        return sendResponse(400,{success: false, 
+            message: 'you need to provide a title AND a text'});
+    }
 
-    const timestamp = new Date().getTime();
-    note.id = `${timestamp}`;
+    if (Object.keys(note).length > 2) {
+        return sendResponse(400, {
+            success: false,
+            message: 'Only text and title are allowed, inget fuffens'
+        });
+    }
+
+    const date = new Date().toDateString();
+    note.id = nanoid();
+    note.createdAt = `${date}`
+    note.modifiedAt = ""
 
     try{
 

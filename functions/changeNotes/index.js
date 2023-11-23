@@ -7,12 +7,15 @@ exports.handler = async(event,context)=>{
 
 
         const requestBody = JSON.parse(event.body);
-        const {id, note} = requestBody
+        const {id, title, text} = requestBody
 
         //kolla om jag har id
-        if(!id||!note){
-            return sendResponse(400, {success:false, message:"Invalid data - need id and a new note!"})
+        if(!id || (!title && !text)){
+            return sendResponse(400, {success:false, 
+                message:"Invalid data - need id and a modification fo either your text or the title "})
         }
+
+        //felhantera kankse med om man skicka med fler fält
 
 
         try{
@@ -29,18 +32,29 @@ exports.handler = async(event,context)=>{
             return sendResponse(404, { success: false, message: "Note not found with the given id" });
         }
 
+        const date = new Date().toDateString();
+
+        const modifiedAt = `${date}`
+
+
         await db.update({
             TableName: 'notes-db',
             Key:    { id: noteToUpdate.id},
             ReturnValues: 'ALL_NEW',
-            UpdateExpression:'set note = :note',
+            UpdateExpression:'set #notetext = :text, #notetitle = :title, modifiedAt = :modifiedAt',
             ExpressionAttributeValues:{
-                ':note' :note
+                ':text' :text,
+                ':title' :title,
+                ':modifiedAt': modifiedAt,
+            },
+            ExpressionAttributeNames: {
+                '#notetext': 'text',
+                '#notetitle': 'title',
             }
         }).promise();
 
         
-        return sendResponse(200, {message: "note updatet with: " + note })
+        return sendResponse(200, {message: "note updatet with: " + text })
     } catch(error){
 
         return sendResponse(500, {success: false, message: "could not updaate"})
