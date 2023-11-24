@@ -58,6 +58,28 @@ functions:
       - httpApi:
           path: '/user/login'
           method: POST
+  dustbin:
+    handler: functions/dustBin/index.handler
+    events:
+      - httpApi:
+          path: '/dustBin'
+          method: GET
+          
+  reactivate:
+    handler: functions/reactivateOldNotes/index.handler
+    events:
+      - httpApi:
+          path: '/dustBin'
+          method: PATCH
+
+          
+  deleteForEver:
+    handler: functions/deleteForever/index.handler
+    events:
+      - httpApi:
+          path: '/dustBin'
+          method: DELETE
+
 
 
 resources:
@@ -74,17 +96,6 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST 
  
-    dustBinDb: 
-      Type: AWS::DynamoDB::Table
-      Properties: 
-        TableName: dustbin-db
-        AttributeDefinitions:
-          - AttributeName: id
-            AttributeType: S
-        KeySchema:
-          - AttributeName: id
-            KeyType: HASH
-        BillingMode: PAY_PER_REQUEST 
 
     usersNotesDb: 
       Type: AWS::DynamoDB::Table

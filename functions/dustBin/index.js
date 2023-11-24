@@ -7,15 +7,14 @@ const middy = require('@middy/core')
 
 
 
-const getNotes = async(event,context)=>{
+const dustBin= async(event,context)=>{
 
     if(event?.error && event?.error === '401')
     return sendResponse(401, {success: false, message: 'invalid token'});
     const username = event.username
 
 
-  
-    const{Items} = await db.scan({
+   const{Items} = await db.scan({
         TableName: 'notes-db',
         FilterExpression: "#username = :username AND #isActive = :isActive",
         ExpressionAttributeNames:{
@@ -24,11 +23,10 @@ const getNotes = async(event,context)=>{
         },
         ExpressionAttributeValues:{
             ":username": username,
-            ":isActive": true
+            ":isActive": false
         }
         
     }).promise()
-
 
 
 
@@ -38,7 +36,7 @@ return sendResponse(200, {success: true, notes: Items})
 }
 
 
-const handler = middy(getNotes)
+const handler = middy(dustBin)
 .use(validateToken)
 
 module.exports = {handler};

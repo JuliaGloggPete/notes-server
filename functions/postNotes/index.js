@@ -49,6 +49,7 @@ const postNotes = async(event,context)=>{
     note.createdAt = `${date}`
     note.modifiedAt = ""
     note.username = event.username
+    note.isActive = true
 
     try{
 

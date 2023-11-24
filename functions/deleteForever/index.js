@@ -5,7 +5,7 @@ const middy = require('@middy/core');
 const { validateToken } = require('../middleware/auth');
 
 
-const deleteNote = async(event,context)=>{
+const deleteForEver = async(event,context)=>{
    
     if(event?.error && event?.error === '401')
     return sendResponse(401, {success: false, message: 'invalid token'});
@@ -31,57 +31,34 @@ const deleteNote = async(event,context)=>{
             TableName: 'notes-db'
         }).promise()
 
-        const noteToDelete = Items.find((note) => note.id === id);
+        const noteToDeleteForGood = Items.find((note) => note.id === id);
 
-        if (!noteToDelete) {
+        if (!noteToDeleteForGood) {
             return sendResponse(404, { success: false, message: "Note not found with the given id" });
         }
 
-        if(!noteToDelete.isActive){
-            return sendResponse(404, { success: false, message: "Note is already put in dustbin" });
+        if(noteToDeleteForGood.isActive){
+            return sendResponse(404, { success: false, message: "Where did you get this id the note is not in the dustbin " });
         }
 
-        if (event.username != noteToDelete.username){
+        if (event.username != noteToDeleteForGood.username){
             return sendResponse(404, { success: false, 
                 message: "You can not kill what you did\'nt create" });
   
 
         }
-        const date = new Date().toISOString();
-
-        const modifiedAt = `${date}`
-
-
-        await db.update({
-            TableName: 'notes-db',
-            Key: { id: noteToDelete.id },
-            ReturnValues: 'ALL_NEW',
-            UpdateExpression: "SET #isActive = :isActive, #modifiedAt = :modifiedAt",
-
-            ExpressionAttributeValues: {
-                ":isActive": false,
-                ":modifiedAt": modifiedAt
-            },
-            ExpressionAttributeNames: {
-                "#isActive": "isActive",
-                "#modifiedAt": "modifiedAt"
-            }
-        }).promise();
-
-
-
-
+      
 
        
 
 
-        /*await db.delete({
+        await db.delete({
             TableName: 'notes-db',
-            Key:    { id: noteToDelete.id}
-        }).promise();*/
+            Key:    { id: noteToDeleteForGood.id}
+        }).promise();
 
 
-        return sendResponse(200, {message: "The note is deleted id: " + noteToDelete.id })
+        return sendResponse(200, {message: "The note is deleted: " + noteToDeleteForGood.text })
     } catch(error){
 
         return sendResponse(500, {success: false, message: "could not delete"})
@@ -90,7 +67,7 @@ const deleteNote = async(event,context)=>{
 }
 
 
-const handler = middy(deleteNote)
+const handler = middy(deleteForEver)
 .use(validateToken)
 
 module.exports = {handler};

@@ -52,7 +52,7 @@ const changeNotes = async (event, context) => {
         if (!noteToUpdate) {
             return sendResponse(404, { success: false, message: "Note not found with the given id" });
         }
-        if (event.username != note.username) {
+        if (event.username != noteToUpdate.username) {
             return sendResponse(404, {
                 success: false,
                 message: "You cannot change what others wrote, you can only change yourself(and your notes)"
