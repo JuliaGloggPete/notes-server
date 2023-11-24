@@ -36,7 +36,7 @@ return {success:true, userId}
 async function signUp(username, password, firstname, lastname){
     // check om den redan finns...
 
-    const hashedPassword = bycrypt.hash(password, 10);
+    const hashedPassword = await bycrypt.hash(password, 10);
     const userId = nanoid();
 
     const result = await createAccount(username, 

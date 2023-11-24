@@ -21,7 +21,23 @@ exports.handler = async(event,context)=>{
         });
     }
 
-    const date = new Date().toDateString();
+    if (note.title.length > 50){
+        return sendResponse(400, {
+            success: false, message: 'title can\'t be longer than 50 chars '
+
+
+        })
+    }
+    if (note.text.length > 400){
+        return sendResponse(400, {
+            success: false, 
+            message: 'text can\'t be longer than 400 chars please send it in two notes'
+
+
+        })
+    }
+
+    const date = new Date().toISOString();
     note.id = nanoid();
     note.createdAt = `${date}`
     note.modifiedAt = ""

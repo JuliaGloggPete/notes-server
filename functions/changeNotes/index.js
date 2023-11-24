@@ -32,7 +32,7 @@ exports.handler = async(event,context)=>{
             return sendResponse(404, { success: false, message: "Note not found with the given id" });
         }
 
-        const date = new Date().toDateString();
+        const date = new Date().toISOString();
 
         const modifiedAt = `${date}`
 
