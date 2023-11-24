@@ -1,15 +1,21 @@
 const {sendResponse} = require('../../responses/index')
 const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB.DocumentClient();
+const middy = require('@middy/core');
+const { validateToken } = require('../middleware/auth');
 
 
+const deleteNote = async(event,context)=>{
+   
+    if(event?.error && event?.error === '401')
+    return sendResponse(401, {success: false, message: 'invalid token'});
 
-exports.handler = async(event,context)=>{
 
 
 
         const requestBody = JSON.parse(event.body);
         const {id} = requestBody
+
 
         //kolla om jag har id
         if(!id){
@@ -31,6 +37,13 @@ exports.handler = async(event,context)=>{
             return sendResponse(404, { success: false, message: "Note not found with the given id" });
         }
 
+        if (event.username != note.username){
+            return sendResponse(404, { success: false, 
+                message: "You can not kill what you did\'nt create" });
+  
+
+        }
+
 
 
        
@@ -41,7 +54,7 @@ exports.handler = async(event,context)=>{
             Key:    { id: noteToDelete.id}
         }).promise();
 
-        
+
         return sendResponse(200, {message: "note deleted id: " + noteToDelete.id })
     } catch(error){
 
@@ -49,3 +62,9 @@ exports.handler = async(event,context)=>{
 
     }
 }
+
+
+const handler = middy(deleteNote)
+.use(validateToken)
+
+module.exports = {handler};

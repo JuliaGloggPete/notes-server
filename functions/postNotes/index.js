@@ -2,10 +2,17 @@ const {sendResponse} = require('../../responses/index')
 const AWS = require('aws-sdk');
 const db = new AWS.DynamoDB.DocumentClient();
 const { nanoid } = require('nanoid');
+const middy = require('@middy/core');
+const { validateToken } = require('../middleware/auth');
 
 
+const postNotes = async(event,context)=>{
 
-exports.handler = async(event,context)=>{
+    if(event?.error && event?.error === '401')
+    return sendResponse(401, {success: false, message: 'invalid token'});
+
+   
+
 
     const note = JSON.parse(event.body)
 
@@ -41,6 +48,7 @@ exports.handler = async(event,context)=>{
     note.id = nanoid();
     note.createdAt = `${date}`
     note.modifiedAt = ""
+    note.username = event.username
 
     try{
 
@@ -56,3 +64,8 @@ exports.handler = async(event,context)=>{
     
     
     }
+
+    const handler = middy(postNotes)
+.use(validateToken)
+
+module.exports = {handler};
